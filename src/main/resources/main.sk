@@ -1,0 +1,92 @@
+command /groupmessage <text>:
+	permission: op
+	trigger:
+		loop {name::*}:
+			Set {_time} To a random integer between 1 And 20
+			Set {_end} To "%{_time}% ticks" parsed as a time span
+			Wait {_end}
+			broadcast "%loop-value% &8» &f%arg-1%"
+
+on right-click on ender chest:
+	if name of player is "DarkGuy_DG":
+		player is sneaking
+		cancel event
+		play sound "minecraft:block.ender_chest.open" at event-location
+		open ("Zohiu" parsed as offlineplayer)'s ender chest to player
+	if name of player is "Zohiu":
+		player is sneaking
+		cancel event
+		play sound "minecraft:block.ender_chest.open" at event-location
+		open ("DarkGuy_DG" parsed as offlineplayer)'s ender chest to player
+
+
+on death:
+	force victim to respawn
+	if attacker is set:
+		victim is not a player
+		if "%victim%" is not "enderman":
+			sendToLog("&a%attacker% &7hat &a%victim% &7getötet.", true, event-location, false)
+	else:
+		sendToLog("&a%victim% &7ist durch &a%event-damagecause% &7gestorben.", true, event-location, false)
+
+
+on join:
+	delete {logs::%player's uuid%}
+	send "&7Logs sind jetzt &caus&7."
+	set flight state of player to false
+	execute console command "/tab player %player% tabsuffix &r"
+	execute console command "/tab player %player% tagsuffix &r"
+	set {afk::%player%} to 300
+
+
+on player move:
+	if {afk::%player%} is 0:
+		execute console command "/tab player %player% tabsuffix &r"
+		execute console command "/tab player %player% tagsuffix &r"
+		send "&eYou are not AFK anymore."
+
+	set {afk::%player%} to 60
+
+every second:
+	loop all players:
+		if {afk::%loop-player%} is more than 0:
+			remove 1 from {afk::%loop-player%}
+			if {afk::%loop-player%} is 0:
+				execute console command "/tab player %loop-player% tabsuffix ' &7&oAFK'"
+				execute console command "/tab player %loop-player% tagsuffix ' &7&oAFK'"
+				send "&eYou are now AFK." to loop-player
+
+command /afk:
+	trigger:
+		if {afk::%player%} is 0:
+			set {afk::%player%} to 60
+			execute console command "/tab player %player% tabsuffix &r"
+			execute console command "/tab player %player% tagsuffix &r"
+			send "&eYou are not AFK anymore."
+		else:
+			set {afk::%player%} to 1
+
+command /logs:
+	trigger:
+		if {logs::%player's uuid%} is not set:
+			set {logs::%player's uuid%} to true
+			send "&7Logs sind jetzt &aan&7."
+		else:
+			delete {logs::%player's uuid%}
+			send "&7Logs sind jetzt &caus&7."
+
+
+function sendToLog(s: text, i: boolean, c: location, d: boolean):
+	set {_now} to now
+	add 2 hours to {_now}
+	set {_file1::*} to {_now} formatted human-readable split at " "
+
+	if {_d} is true:
+		set {_coords} to " &7[&a%floor(x-location of {_c})% &7| &c%floor(y-location of {_c})% &7| &e%floor(z-location of {_c})%&7]"
+	else:
+		set {_coords} to ""
+
+	if {_i} is true:
+		loop all players:
+			if {logs::%loop-player's uuid%} is set:
+				send "&7[%{_file1::2}%]%{_coords}% %{_s}%" to loop-player

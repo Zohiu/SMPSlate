@@ -1,0 +1,119 @@
+# -------------------------------------
+#               General
+# -------------------------------------
+
+# Makes player names look nicer, also does chat formatting
+# This feature requires the TAB plugin (https://github.com/NEZNAMY/TAB) to be installed.
+CustomNameFormatting:
+  enabled: true
+  # Possible placeholders: %player%, %message%
+  chat-format: "%player% &8» %message%"
+
+# Displays player coordinates in the action bar
+CoordBar:
+  enabled: true
+  # Possible placeholders: %x%, %y%, %z%
+  style: "&7X: &c%x% &8| &7Y: &a%y% &8| &7Z: &9%z%"
+
+
+# -------------------------------------
+#               Commands
+# -------------------------------------
+
+# If this is false, the "op-required" command setting will be used.
+# If this is true, the "permission" command setting will be used.
+# For permission plugins like LuckPerm to work, this has to be set to true.
+use-permissions: false
+
+# Changes the player's custom name. This requires the TAB plugin (https://github.com/NEZNAMY/TAB) to be installed.
+# If you don't have TAB installed, this command won't exist on your server.
+SetName:
+  enabled: true
+  op-required: true
+  permission: "smpslate.setname"
+
+# Allows players to see other player's coordinates
+WhereIs:
+  enabled: true
+  op-required: true
+  permission: "smpslate.whereis"
+
+# Makes the executing player send their own coordinates into the chat
+CoordShare:
+  enabled: true
+  op-required: false
+  permission: "smpslate.coordshare"
+
+
+# -------------------------------------
+#               Cosmetic
+# -------------------------------------
+
+# Players swing their offhand when switching items (pressing F)
+SwingOffhand:
+  enabled: true
+
+# Plays a sound to the player when they craft something.
+CraftingSound:
+  enabled: true
+  sound: "minecraft:block.large_amethyst_bud.break"
+
+
+# -------------------------------------
+#               Gameplay
+# -------------------------------------
+
+# No enderman will be able to pick up any blocks. Your world won't be griefed.
+NoEndermanBlockPickup:
+  enabled: true
+
+# Explosions still happen as normal, but don't break your blocks.
+NoExplosionBlockDamage:
+  enabled: true
+  safe-creepers: true
+  safe-tnt: true
+
+# Pushes the player upwards when walking on it.
+BlockCatapult:
+  enabled: true
+  material: "minecraft:emerald_block"
+  particle-effects: true
+  fireworks: true
+
+# When using shears, this will make tall grass actually drop tall grass instead of 2 normal grass.
+ObtainableTallGrass:
+  enabled: true
+
+
+# -------------------------------------
+#             Experimental
+# -------------------------------------
+
+# Allows you to breed wolfs without taming them before.
+# Currently, the resulting baby wolf will then be owned by the player.
+BreedWildWolfs:
+  enabled: true
+
+
+# -------------------------------------
+#             Customisation
+# -------------------------------------
+
+# Instead of letting you configure messages, we let you configure the styling.
+Styling:
+  plugin-prefix-seperator: "&8&l»"
+
+  prefixes:
+    smpslate: "&d&lSMPSlate"
+    chestguard: "&c&lChestGuard"
+    particles: "&a&lParticles"
+    info: "&e&lInfo"
+    help: "&b&lHelp"
+
+  text-formatting:
+    default: "&7"
+    important: "&e"
+    error: "&c"
+    placeholder: "&a"
+    entity-placeholder: "&b"
+    link: "&a&l"

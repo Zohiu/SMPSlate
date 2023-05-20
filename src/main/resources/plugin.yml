@@ -1,0 +1,31 @@
+name: SMPSlate
+version: '${project.version}'
+main: de.zohiu.smpslate.SMPSlate
+api-version: 1.19
+load: STARTUP
+authors: [Zohiu, Dark]
+description: A blank slate for your SMP!
+website: https://zohiu.de/
+softdepend: [TAB]
+
+commands:
+  setname:
+    description: Change a player's displayed name (TAB plugin required)
+    usage: /setname <player> <name>
+  whereis:
+    description: Shows the coordinates of a different player
+    usage: /whereis <player>
+  coordshare:
+    description: Makes the sender share their commands in chat
+    usage: /coordshare
+
+permissions:
+  setname:
+    description: Change the shown username of a player (TAB plugin required)
+    default: op
+  whereis:
+    description: Shows the coordinates of a different player
+    default: not op
+  coordshare:
+    description: Makes the sender share their commands in chat
+    default: not op

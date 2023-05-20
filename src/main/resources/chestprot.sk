@@ -1,0 +1,369 @@
+# ---------------------------------------------- #
+#                                                #
+#    Minecraft server chest protection script    #
+#           by Zohiu & Dark, 05/2023             #
+#                                                #
+# ---------------------------------------------- #
+
+options:
+    update_time: 30
+
+# -----------------------
+#         Events
+# -----------------------
+
+# On load lul
+# on script load:
+#     set {chest_update_counter} to {@update_time}
+#     delete {chestbypass::*}
+#     loop {chests::*}:
+#         if block at loop-value is not chest or any shulker box or barrel:
+#             delete {chests::%loop-value%}
+
+
+# On join lul
+on join:
+    delete {chestbypass::%player%}
+
+
+# Set inital defaults
+on first join:
+    set {defaults::%player's uuid%::public} to false
+    set {defaults::%player's uuid%::hologram} to true
+
+
+# Protect shulker boxes from being broken by pistons
+# Yes. This is the only way. IF ELSE IF ELSE IF ELSE wtf skript I hate you
+on piston extend:
+    if facing of event-block is north:
+        set {_block} to block north of event-block
+    else if facing of event-block is east:
+        set {_block} to block east of event-block
+    else if facing of event-block is west:
+        set {_block} to block west of event-block
+    else if facing of event-block is south:
+        set {_block} to block south of event-block
+    else if facing of event-block is above:
+        set {_block} to block above event-block
+    else if facing of event-block is below:
+        set {_block} to block below event-block
+    if {chests::%location of {_block}%} is set:
+        cancel event
+
+
+# Prevent stealing items using hoppers
+on place of hopper:
+    if {chests::%location above event-location%} is set:
+        if {chests::%location above event-location%::owner} is not player:
+            {whitelist::%{chests::%location above event-location%::owner}'s uuid%::*} doesn't contain player
+            cancel event
+            send "&cUnter %{chests::%location above event-location%::owner}%'s Kiste darfst du keine Hopper platzieren!!"
+
+
+# Chest placing, setup stuff
+on place of chest or any shulker box or barrel or furnace or smoker or blast furnace:
+    # broadcast "Platziert: %event-block%"
+    if player's tool is any shulker box:
+        set {chests::%event-location%::shulkername} to name of player's tool
+    else if player's off hand tool is any shulker box:
+        set {chests::%event-location%::shulkername} to name of player's off hand tool
+    # Wait so minecraft can update stuff
+    wait 1 tick
+
+    # Set the basic variables
+    set {chests::%event-location%} to event-location
+    set {chests::%event-location%::owner} to player
+    set {chests::%event-location%::hololoc} to location above event-location
+
+    # Set the status
+    set {chests::%event-location%::public} to {defaults::%player's uuid%::public}
+    set {chests::%event-location%::hologram} to {defaults::%player's uuid%::hologram}
+
+    # check if this created a double chest
+    set {_doubleblock} to getSecondChest(event-block)
+    if {_doubleblock} is set:
+        # If the connected chest is not owned by the player, ABORT!
+        if {chests::%location of {_doubleblock}%::owner} is not player:
+            send "&cYou can't turn this into a double chest as you don't own it."
+            break event-block naturally
+            delete {chests::%event-location%}
+            stop
+
+        set {chest_update_counter} to 0
+
+        # Add this block to the other block's variables
+        set {chests::%location of {_doubleblock}%::doubleblock} to event-block
+
+        # Add the other block to this block's variables
+        set {chests::%event-location%::doubleblock} to {_doubleblock}
+
+        # Set this block's status to be like the connected chest
+        set {chests::%event-location%::public} to {chests::%location of {_doubleblock}%::public}
+        set {chests::%event-location%::hologram} to {chests::%location of {_doubleblock}%::hologram}
+
+    else:
+        set {chest_update_counter} to 0
+
+
+# Prevent breaking chests
+on break of chest or any shulker box or barrel or furnace or smoker or blast furnace:
+    # Allow bypasses to access
+    if {chestbypass::%player%} is set:
+        delete {chestbypass::%player%}
+        send "&eYour bypass has been used."
+        set {_access} to true
+
+    # Allow owners to access
+    else if {chests::%event-location%::owner} is player:
+        set {_access} to true
+
+    # If they can access
+    if {_access} is true:
+        # Delete this block from any potential double chest's variables
+        set {_doubleblock} to {chests::%event-location%::doubleblock}
+        delete {chests::%location of {_doubleblock}%::doubleblock}
+        # Delete this block's variables
+        delete {chests::%event-location%}
+        set {chest_update_counter} to 0
+        stop
+
+    # Otherwise, cancel
+    if {chests::%event-location%} is set:
+        cancel event
+        send "&cYou may not break this."
+
+
+# Prevent accessing chests
+on right-click on a chest or any shulker box or barrel or furnace or smoker or blast furnace:
+    # If bypass is enabled, let them access it
+    if {chestbypass::%player%} is set:
+        delete {chestbypass::%player%}
+        send "&eYour bypass has been used."
+        set {_access} to true
+
+    # If it's the owner, allow them to access it
+    else if {chests::%event-location%::owner} is player:
+        set {_access} to true
+
+    # Else if the player is on the whitelist
+    else if {whitelist::%{chests::%event-location%::owner}%::*} contains player:
+        stop
+
+    # Else if the chest is public, let them access it
+    else if {chests::%event-location%::public} is true:
+        {blacklist::%{chests::%event-location%::owner}%::*} doesn't contain player
+        stop
+
+    # If they can access
+    if {_access} is set:
+        # Change the status of the block when using stick
+        if player is holding stick:
+            set {chest_update_counter} to 0
+            cancel event
+
+            # There might be a double chest, so just update that too
+            set {_doubleblock} to {chests::%event-location%::doubleblock}
+
+            # Change the hologram status when sneaking
+            if player is sneaking:
+                if {chests::%event-location%::hologram} is true:
+                    set {chests::%event-location%::hologram} to false
+                    set {chests::%location of {_doubleblock}%::hologram} to false
+                else:
+                    set {chests::%event-location%::hologram} to true
+                    set {chests::%location of {_doubleblock}%::hologram} to true
+
+            # Change the privacy status when not sneaking
+            else:
+                if {chests::%event-location%::public} is true:
+                    set {chests::%event-location%::public} to false
+                    set {chests::%location of {_doubleblock}%::public} to false
+                else:
+                    set {chests::%event-location%::public} to true
+                    set {chests::%location of {_doubleblock}%::public} to true
+
+        stop
+
+    # Otherwise, cancel
+    if {chests::%event-location%} is set:
+        cancel event
+        send "&cYou may not access this."
+
+
+# -----------------------
+#        Commands
+# -----------------------
+
+
+# I know this is an event, but it should be next to the command so it goes here.
+on tab complete of "/chestprotection":
+    if event-string is "/chestprotection":
+        set tab completions for position 1 to "defaults", "whitelist" and "blacklist"
+
+    if tab arg-1 is "defaults":
+        set tab completions for position 2 to "public" and "hologram"
+        if tab arg-2 is "hologram" or "public":
+            set tab completions for position 3 to "true" and "false"
+
+    else if tab arg-1 is "whitelist":
+        set tab completions for position 2 to "add" and "remove"
+
+        if tab arg-2 is "add":
+            set tab completions for position 3 to all players
+
+        if tab arg-2 is "remove":
+            set tab completions for position 3 to {whitelist::%player's uuid%::*}
+
+    else if tab arg-1 is "blacklist":
+        set tab completions for position 2 to "add" and "remove"
+
+        if tab arg-2 is "add":
+            set tab completions for position 3 to all players
+
+        if tab arg-2 is "remove":
+            set tab completions for position 3 to {whitelist::%player's uuid%::*}
+
+
+# Main command to interact with chestprotection.
+command /chestprotection [<text>] [<text>] [<text>]:
+    trigger:
+        if arg-1 is "defaults":
+            if arg-2 is "hologram":
+                if arg-3 is "true":
+
+                    set {defaults::%player%::hologram} to true
+                    send "&7Neue Kisten: mit &aHologramm&7."
+                else if arg-3 is "false":
+                    set {defaults::%player%::hologram} to false
+                    send "&7Neue Kisten: ohne &cHologramm&7."
+
+            else if arg-2 is "public":
+                if arg-3 is "true":
+                    set {defaults::%player%::public} to true
+                    send "&7Neue Kisten: &aÖffentlich&7."
+                else if arg-3 is "false":
+                    set {defaults::%player%::public} to false
+                    send "&7Neue Kisten: &cPrivat&7."
+
+        else if arg-1 is "whitelist":
+            if arg-2 is "add":
+                if {whitelist::%player%::*} doesn't contain arg-3 parsed as offline player:
+                    add arg-3 parsed as offline player to {whitelist::%player%::*}
+                    send "&7Spieler '&a%arg-3%&7' ist nun in deiner Whitelist."
+                else:
+                    send "&7Spieler '&a%arg-3%&7' ist schon in deiner Whitelist."
+
+            else if arg-2 is "remove":
+                remove arg-3 parsed as offline player from {whitelist::%player%::*}
+                send "&7Spieler '&c%arg-3%&7' ist nicht mehr in deiner Whitelist."
+
+        else if arg-1 is "blacklist":
+            if arg-2 is "add":
+                if {blacklist::%player%::*} doesn't contain arg-3 parsed as offline player:
+                    add arg-3 parsed as offline player to {blacklist::%player%::*}
+                    send "&7Spieler '&a%arg-3%&7' ist nun in deiner Blacklist."
+                else:
+                    send "&7Spieler '&a%arg-3%&7' ist schon in deiner Blacklist."
+
+            else if arg-2 is "remove":
+                remove arg-3 parsed as offline player from {blacklist::%player%::*}
+                send "&7Spieler '&c%arg-3%&7' ist nicht mehr in deiner Blacklist."
+
+
+# Bypass command for emergency
+command /chestbypass:
+    trigger:
+        send "&aYou can now break and open any chest."
+        set {chestbypass::%player%} to true
+        wait 5 seconds
+
+        if {chestbypass::%player%} is set:
+            send "&eYour bypass has expired."
+            delete {chestbypass::%player%}
+
+
+# -----------------------
+#         Timed
+# -----------------------
+
+# Show holograms
+every tick:
+    # Abort if counter is not yet 20
+    if {chest_update_counter} is more than 0:
+        remove 1 from {chest_update_counter}
+        stop
+
+    set {chest_update_counter} to {@update_time}
+
+    loop {chests::*}:
+        set {_location} to loop-value
+
+        # Only do stuff if the hologram is enabled
+        if {chests::%{_location}%::hologram} is true:
+            delete {_players::*}
+            loop all players in radius 10 around {_location}:
+                add loop-player to {_players::*}
+
+            if size of {_players::*} is more than 0:
+                set {_hololocation} to {chests::%{_location}%::hololoc}
+                set {_display} to true
+
+                # If the chest is a double chest
+                if {chests::%{_location}%::doubleblock} is set:
+                    # Only display the hologram once (for main chest)
+                    if isThisChestTheHolder(block at {_location}) is false:
+                        set {_display} to false
+
+                    # Calculate the middle between chests
+                    set x-coord of {_hololocation} to ((x-coord of {_location}) + (x-coord of location of {chests::%{_location}%::doubleblock})) / 2
+                    set z-coord of {_hololocation} to ((z-coord of {_location}) + (z-coord of location of {chests::%{_location}%::doubleblock})) / 2
+
+
+                if {_display} is true:
+                    wait 1 tick
+                    # broadcast "Updated a chest! %random integer between 0 and 100000%"
+                    set {_owner} to {chests::%{_location}%::owner}
+                    set {_public} to {chests::%{_location}%::public}
+                    loop {_players::*}:
+                        if block at loop-value-1 is any shulker box:
+                            display hologram "&7%{chests::%{_location}%::shulkername}%" at location 0.25 above {_hololocation} to loop-value-2 for ("%{@update_time} + 2% ticks" parsed as timespan)
+
+                        display hologram "&7%{_owner}%" at {_hololocation} to loop-value-2 for ("%{@update_time} + 2% ticks" parsed as timespan)
+                        if {_public} is true:
+                            display hologram "&aPublic" at location 0.25 below {_hololocation} to loop-value-2 for ("%{@update_time} + 2% ticks" parsed as timespan)
+                        else:
+                            display hologram "&cPrivate" at location 0.25 below {_hololocation} to loop-value-2 for ("%{@update_time} + 2% ticks" parsed as timespan)
+
+
+# -----------------------
+#       Functions
+# -----------------------
+
+# This tell you whether this chest is the holder (aka the main chest) of the double chest
+function isThisChestTheHolder(block: block) :: boolean:
+    set {_holder} to location of holder of {_block}
+    if {_holder} is location of {_block}:
+        return true
+    return false
+
+
+# This returns the location of the connected chest IF it's a double chest.
+function getSecondChest(block: block) :: block:
+    set {_inv} to inventory of {_block}
+    if {_inv}'s amount of rows is 6:  # If a double chest has just been created
+
+        set {_main} to isThisChestTheHolder({_block})
+
+        # East / West facing chests:
+        if facing of {_block} is east or west:
+            if {_main} is true:
+                return block south of {_block}
+            else:
+                return block north of {_block}
+
+        # North / South facing chest:
+        else if facing of {_block} is north or south:
+            if {_main} is true:
+                return block east of {_block}
+            else:
+                return block west of {_block}

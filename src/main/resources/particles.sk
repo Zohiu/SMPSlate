@@ -1,0 +1,255 @@
+# The following has to be uncommented for the first run. Only do it one time.
+# This will take AGES to reload. It took over 6 minutes on a minehut server.
+
+on script load:
+	set {all_particles::*} to smoke, firework's spark, water splash, critical hit, smoke particle, potion swirl, transparent potion swirl, witch spell, lava drip, angry villager, happy villager, small smoke, note, portal, flying glyph, flame, lava pop, cloud, coloured dust, snowball break, slime, heart, dragon breath, totem, spit, squid ink, sneeze, falling lava, falling water, dripping honey, falling nectar, soul fire flame, ash, soul, dripping obsidian tear, falling obsidian tear, reverse portal, falling spore blossom, snowflake, glow squid ink, glow, wax on, wax off, electric spark, sculk soul, bubble pop and scrape
+
+
+
+on toggling gliding:
+	set {elytra::%player%} to true
+	while block 0.1 below player is air:
+		if player is online:
+			make player execute "/showelytraparticles uwu"
+
+			# if name of player is "Qyrzix" or "Zohiu":
+			# 	play 2 dragon breath with speed 0.1 on location of player
+			# 	play 2 dripping obsidian tear with speed 0.25 on location of player
+			# 	play 20 portal with speed 0.25 on location of player
+			# 	play 2 end rod with speed 0.1 on location of player
+
+			wait 2 tick
+		else:
+			exit 1 loop
+
+	wait 0.5 seconds
+	delete {elytra::%player%}
+
+
+command /chk [<visual effect>]:
+	trigger:
+		add arg-1 to {active_particles::%player's uuid%::*}
+
+
+command /uwu:
+	trigger:
+		# send "%{all_particles::*}%"
+		create gui with virtual chest inventory with 5 rows named "Your Elytra Trail" with shape "x1xxxxxxx", "x2xxxxxxx", "x3xxxxxxx", "xxxxxxxxx" and "xlxxxxxrx":
+			make gui slot "2" with yellow glass pane named "&eAmount: 2" with lore "&r&7Left-click to increase" and "&r&7Right-click to decrease"
+			make gui slot "3" with red glass pane named "&cSpeed: 2" with lore "&r&7Left-click to increase" and "&r&7Right-click to decrease"
+			make gui slot "1" with lime dye named "&aEffect A" with lore "&r&7Left-click to disable" and "&r&7Right-click to preview"
+
+			make gui slot "l" with arrow named "&8Previous page"
+			make gui slot "r" with arrow named "&8Next page"
+
+		open last gui to player
+
+command /elytraparticles:
+	trigger:
+		# send "%{all_particles::*}%"
+		create gui with virtual chest inventory with 5 rows named "Your Elytra Trail":
+			# info item, head of player
+			loop {all_particles::*}:
+				set {_location} to location 1.5 above location 2 in front of player
+				set {_particle} to loop-value
+
+				if {active_particles::%player's uuid%::*} contains {_particle}:
+					make gui slot (loop-index parsed as number - 1) with lime dye named "&r&a%{_particle}%" with lore "&r&7Left-click to remove" and "&r&7Right-click to preview":
+						if "%gui click type%" is "left mouse button":
+							remove {_particle} from {active_particles::%player's uuid%::*}
+							make player execute "/elytraparticles"
+						else:
+							set {_before::*} to {active_particles::%player's uuid%::*}
+							set {active_particles::%player's uuid%::*} to {_particle}
+							wait 2 ticks
+							close player's inventory
+							loop 10 times:
+								wait 1 tick
+								make player execute "/showelytraparticles"
+							wait 1 tick
+							set {active_particles::%player's uuid%::*} to {_before::*}
+							wait 10 ticks
+							make player execute "/elytraparticles"
+
+				else:
+					make gui slot (loop-index parsed as number - 1) with light gray dye named "&r&8%{_particle}%" with lore "&r&7Left-click to add" and "&r&7Right-click to preview":
+						if "%gui click type%" is "left mouse button":
+							add {_particle} to {active_particles::%player's uuid%::*}
+							make player execute "/elytraparticles"
+						else:
+							set {_before::*} to {active_particles::%player's uuid%::*}
+							set {active_particles::%player's uuid%::*} to {_particle}
+							wait 2 ticks
+							close player's inventory
+							loop 10 times:
+								wait 1 tick
+								make player execute "/showelytraparticles"
+							wait 1 tick
+							set {active_particles::%player's uuid%::*} to {_before::*}
+							wait 10 ticks
+							make player execute "/elytraparticles"
+
+
+		open last gui to player
+
+
+command /showelytraparticles [<text>]:
+	trigger:
+		if arg-1 is set:
+			set {_loc} to location of player
+		else:
+			set {_loc} to location 1.5 above location 2 in front of player
+
+		if {active_particles::%player's uuid%::*} is not set:
+			play 2 firework spark with speed 0.1 on {_loc}
+			play 2 totem with speed 0.1 on {_loc}
+			play 2 cloud with speed 0.1 on {_loc}
+			play 2 end rod with speed 0.1 on {_loc}
+			stop
+
+		if {active_particles::%player's uuid%::*} contains smoke:
+			play 2 smoke with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains cloud:
+			play 2 cloud with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains firework's spark:
+			play 2 firework's spark with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains water splash:
+			play 2 water splash with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains critical hit:
+			play 2 critical hit with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains smoke particle:
+			play 2 smoke particle with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains potion swirl:
+			play 2 potion swirl with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains transparent potion swirl:
+			play 2 transparent potion swirl with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains witch spell:
+			play 2 witch spell with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains lava drip:
+			play 2 lava drip with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains angry villager:
+			play 2 angry villager with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains happy villager:
+			play 2 happy villager with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains small smoke:
+			play 2 small smoke with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains note:
+			play 2 note with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains portal:
+			play 2 portal with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains flying glyph:
+			play 2 flying glyph with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains flame:
+			play 2 flame with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains lava pop:
+			play 2 lava pop with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains coloured dust:
+			play 2 coloured dust with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains snowball break:
+			play 2 snowball break with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains slime:
+			play 2 slime with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains heart:
+			play 2 heart with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains dragon breath:
+			play 2 dragon breath with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains totem:
+			play 2 totem with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains spit:
+			play 2 spit with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains squid ink:
+			play 2 squid ink with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains sneeze:
+			play 2 sneeze with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains falling lava:
+			play 2 falling lava with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains falling water:
+			play 2 falling water with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains dripping honey:
+			play 2 dripping honey with speed 0.25 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains falling nectar:
+			play 2 falling nectar with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains soul fire flame:
+			play 2 soul fire flame with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains ash:
+			play 2 ash with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains crimson spore:
+			play 2 crimson spore with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains warped spore:
+			play 2 warped spore with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains soul:
+			play 2 soul with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains dripping obsidian tear:
+			play 2 dripping obsidian tear with speed 0.25 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains falling obsidian tear:
+			play 2 falling obsidian tear with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains reverse portal:
+			play 2 reverse portal with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains falling spore blossom:
+			play 2 falling spore blossom with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains snowflake:
+			play 2 snowflake with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains glow squid ink:
+			play 2 glow squid ink with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains glow:
+			play 2 glow with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains wax on:
+			play 2 wax on with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains wax off:
+			play 2 wax off with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains electric spark:
+			play 2 electric spark with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains sculk soul:
+			play 2 sculk soul with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains bubble pop:
+			play 2 bubble pop with speed 0.1 on {_loc}
+
+		if {active_particles::%player's uuid%::*} contains scrape:
+			play 2 scrape with speed 0.1 on {_loc}
