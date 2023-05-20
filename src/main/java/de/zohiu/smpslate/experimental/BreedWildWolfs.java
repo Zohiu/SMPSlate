@@ -26,9 +26,7 @@ public class BreedWildWolfs implements Listener {
 
                 // Remove tamed state after 5 seconds
                 BukkitScheduler scheduler = Bukkit.getScheduler();
-                scheduler.runTaskLater(SMPSlate.getInstance(), () -> {
-                    wolf.setTamed(false);
-                }, 100);
+                scheduler.runTaskLater(SMPSlate.getInstance(), () -> wolf.setTamed(false), 100);
             }
         }
     }
