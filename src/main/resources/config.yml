@@ -76,6 +76,7 @@ NoExplosionBlockDamage:
 # Pushes the player upwards when walking on it.
 BlockCatapult:
   enabled: true
+  fall-damage-on-catapult: false
   material: "minecraft:emerald_block"
   particle-effects: true
   fireworks: true

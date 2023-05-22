@@ -1,5 +1,6 @@
 package de.zohiu.smpslate.commands;
 
+import de.zohiu.smpslate.SMPSlate;
 import me.neznamy.tab.api.TabAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -18,6 +19,11 @@ import java.util.List;
 public class SetNameCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+        if (!SMPSlate.getInstance().getConfig().getBoolean("SetName.enabled")) {
+            sender.sendMessage("This command is disabled!");
+            return true;
+        }
+
         if (!sender.hasPermission("setname")) {
             sender.sendMessage("You don't have the permission to use this command!");
             return true;

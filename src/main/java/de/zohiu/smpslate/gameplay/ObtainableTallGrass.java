@@ -1,5 +1,6 @@
 package de.zohiu.smpslate.gameplay;
 
+import de.zohiu.smpslate.SMPSlate;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -9,6 +10,10 @@ import org.bukkit.inventory.ItemStack;
 public class ObtainableTallGrass implements Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
+        if (!SMPSlate.getInstance().getConfig().getBoolean("ObtainableTallGrass.enabled")) {
+            return;
+        }
+
         if (event.getBlock().getType() != Material.TALL_GRASS) {
             return;
         }

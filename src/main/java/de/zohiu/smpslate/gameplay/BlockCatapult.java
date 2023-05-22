@@ -1,5 +1,6 @@
 package de.zohiu.smpslate.gameplay;
 
+import de.zohiu.smpslate.SMPSlate;
 import org.bukkit.*;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
@@ -13,6 +14,10 @@ import org.bukkit.util.Vector;
 public class BlockCatapult implements Listener {
     @EventHandler
     public void onWalkOn(PlayerMoveEvent event) {
+        if (!SMPSlate.getInstance().getConfig().getBoolean("BlockCatapult.enabled")) {
+            return;
+        }
+
         Player player = event.getPlayer();
         Location loc = player.getLocation().subtract(0, 1, 0);
 
@@ -37,6 +42,10 @@ public class BlockCatapult implements Listener {
     // Disable fall damage on the catapult itself
     @EventHandler
     public void onPlayerDamage(EntityDamageEvent event) {
+        if (SMPSlate.getInstance().getConfig().getBoolean("BlockCatapult.fall-damage-on-catapult")) {
+            return;
+        }
+
         if (event.getEntity() instanceof Player) {
             if (event.getCause() == EntityDamageEvent.DamageCause.FALL) {
                 Location loc = event.getEntity().getLocation().subtract(0, 1, 0);

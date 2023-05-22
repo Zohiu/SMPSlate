@@ -26,6 +26,10 @@ public final class SMPSlate extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        // Default config
+        saveDefaultConfig();
+        reloadConfig();
+
         // Plugin startup logic
         if (getServer().getPluginManager().getPlugin("TAB") != null){
             getLogger().info("TAB detected, enabling name formatting.");
@@ -50,6 +54,7 @@ public final class SMPSlate extends JavaPlugin {
 
         // Micro features - misc
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, CoordsActionBar::sendCoordBar, 0L, 3L);
+
 
         instance = this;
         getLogger().info("Successfully loaded!");

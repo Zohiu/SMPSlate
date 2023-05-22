@@ -1,5 +1,6 @@
 package de.zohiu.smpslate.general;
 
+import de.zohiu.smpslate.SMPSlate;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -8,6 +9,10 @@ import org.bukkit.entity.Player;
 
 public class CoordsActionBar {
     public static void sendCoordBar() {
+        if (!SMPSlate.getInstance().getConfig().getBoolean("CoordBar.enabled")) {
+            return;
+        }
+
         for (Player player : Bukkit.getOnlinePlayers()) {
             float x = (float) Math.round(player.getLocation().getX() * 10.0f) / 10.0f;
             float y = (float) Math.round(player.getLocation().getY() * 10.0f) / 10.0f;

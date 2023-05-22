@@ -14,6 +14,10 @@ import org.bukkit.scheduler.BukkitScheduler;
 public class BreedWildWolfs implements Listener {
     @EventHandler
     public void onWolfClick(PlayerInteractAtEntityEvent event) {
+        if (!SMPSlate.getInstance().getConfig().getBoolean("BreedWildWolfs.enabled")) {
+            return;
+        }
+
         if (event.getRightClicked() instanceof Wolf) {
             Wolf wolf = (Wolf) event.getRightClicked();
             if (event.getPlayer().getInventory().getItemInMainHand().getType() == Material.COOKED_BEEF) {

@@ -1,5 +1,6 @@
 package de.zohiu.smpslate.commands;
 
+import de.zohiu.smpslate.SMPSlate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -16,6 +17,11 @@ import java.util.List;
 public class WhereIsCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+        if (!SMPSlate.getInstance().getConfig().getBoolean("WhereIs.enabled")) {
+            commandSender.sendMessage("This command is disabled!");
+            return true;
+        }
+
         if (!commandSender.hasPermission("whereis")) {
             commandSender.sendMessage("You don't have the permission to use this command!");
             return true;

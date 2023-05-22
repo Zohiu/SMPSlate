@@ -1,5 +1,6 @@
 package de.zohiu.smpslate.general;
 
+import de.zohiu.smpslate.SMPSlate;
 import me.neznamy.tab.api.TabAPI;
 import me.neznamy.tab.api.TabPlayer;
 import me.neznamy.tab.api.TablistFormatManager;
@@ -14,6 +15,10 @@ import java.util.UUID;
 public class CustomChat implements Listener {
     @EventHandler
     public void onChat(AsyncPlayerChatEvent event) {
+        if (!SMPSlate.getInstance().getConfig().getBoolean("CustomNameFormatting.enabled")) {
+            return;
+        }
+
         event.setCancelled(true);
 
         UUID playerUUID = event.getPlayer().getUniqueId();

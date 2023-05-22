@@ -1,5 +1,6 @@
 package de.zohiu.smpslate.commands;
 
+import de.zohiu.smpslate.SMPSlate;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -10,6 +11,11 @@ import org.jetbrains.annotations.NotNull;
 public class CoordShareCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+        if (!SMPSlate.getInstance().getConfig().getBoolean("CoordShare.enabled")) {
+            commandSender.sendMessage("This command is disabled!");
+            return true;
+        }
+
         if (!commandSender.hasPermission("coordshare")) {
             commandSender.sendMessage("You don't have the permission to use this command!");
             return true;
